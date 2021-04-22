@@ -115,6 +115,16 @@ def on_get_message(event):
     message_text = event.message.text
     print(dict(message_text=message_text))
 
+    # TODO: 対象メッセージ(予想の書かれたメッセージ)かどうかを判別します。
+
+    # TODO: 対象メッセージでなければ無視。
+
+    # TODO: 対象メッセージであれば、 SpreadSheet への格納を行います。
+
+    # TODO: どのレースの予想として格納されたか、発言者へ通知します。
+    # NOTE: 「でないとどのレースの予想として扱われたのかわからないよね……」
+    #       という意見が出たので、追加された機能です。そりゃそうだ。
+
     line_bot_api.reply_message(
         reply_token,
         TextSendMessage(text=f'Send from line_bot_api.reply_message, you sent...: {message_text}')
