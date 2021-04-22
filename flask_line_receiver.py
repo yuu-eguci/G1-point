@@ -95,7 +95,7 @@ def on_get_message(event):
     print(dict(group_id=group_id))
 
     # 発言者の id。
-    user_id = event.source.userId
+    user_id = event.source.user_id
     # 発言者の情報。
     # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#get_profileself-user_id-timeoutnone
     user_profile = line_bot_api.get_profile(user_id)
