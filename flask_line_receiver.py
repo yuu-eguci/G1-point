@@ -129,7 +129,7 @@ def on_get_message(event):
     #       という意見が出たので、追加された機能です。そりゃそうだ。
     send_message = (
         f'{user_profile.display_name} さん\n'
-        f'今回のメッセージは {race_date} {race_name} の予想として受理されました!'
+        f'今回のメッセージ "{message_text}" は {race_date} {race_name} の予想として受理されました!'
     )
     line_bot_api.reply_message(
         reply_token,
