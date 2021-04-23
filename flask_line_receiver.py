@@ -85,15 +85,16 @@ def callback_post():
 #       ってイメージで多分 OK.
 @handler.add(MessageEvent, message=TextMessage)
 def on_get_message(event):
-
-    # ここで行うことは……
-    # - G1 グループからのメッセージであることを確認。(event.source.group_id で検証可能。)
-    # - 発言者名を取得。(line_bot_api.get_profile で確認可能。)
-    # - メッセージの内容を取得し、「予想」メッセージであれば Spread Sheet へ格納。
+    """ここで行うことは……
+    - G1 グループからのメッセージであることを確認。(event.source.group_id で検証可能。)
+    - 発言者名を取得。(line_bot_api.get_profile で確認可能。)
+    - メッセージの内容を取得し、「予想」メッセージであれば Spread Sheet へ格納。
+    """
 
     # Group id を取得。
+    # TODO: のちのち、 G1 グループの group id を取得して環境変数へ記録。
     group_id = event.source.group_id
-    print(dict(group_id=group_id))
+    logger.debug(dict(group_id=group_id))
 
     # TODO: G1 グループからのメッセージであることを確認。
 
@@ -102,28 +103,21 @@ def on_get_message(event):
     # 発言者の情報。
     # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#get_profileself-user_id-timeoutnone
     user_profile = line_bot_api.get_profile(user_id)
-    print(dict(
-        display_name=user_profile.display_name,
-        user_id=user_profile.user_id,
-        picture_url=user_profile.picture_url,
-        status_message=user_profile.status_message,
-    ))
 
     # 返答するための token。
     # NOTE: line_bot_api.reply_message(reply_token, TextSendMessage(text='...')) と使用。
     reply_token = event.reply_token
-    print(dict(reply_token=reply_token))
 
     # メッセージの内容。
     message_text = event.message.text
     # NOTE: スペースが混じっていたり、全角が混じっていたりするのは看過してやります。
-    message_text = mojimoji.zen_to_han(message_text)
-    message_text = message_text.replace(' ', '')
-    print(dict(message_text=message_text))
+    message_text = mojimoji.zen_to_han(message_text).replace(' ', '')
+    logger.debug(dict(message_text=message_text))
 
     # 対象メッセージ(予想の書かれたメッセージ)かどうかを判別します。
     # 対象メッセージでなければ無視。
     if not is_target_messaage_text(message_text):
+        logger.debug('This message is not a target.')
         return
 
     # TODO: 対象メッセージであれば、 SpreadSheet への格納を行います。
