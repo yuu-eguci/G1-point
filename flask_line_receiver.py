@@ -14,6 +14,7 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
+import mojimoji
 
 # User modules.
 import utils
@@ -113,22 +114,53 @@ def on_get_message(event):
 
     # メッセージの内容。
     message_text = event.message.text
+    # NOTE: スペースが混じっていたり、全角が混じっていたりするのは看過してやります。
+    message_text = mojimoji.zen_to_han(message_text)
+    message_text = message_text.replace(' ', '')
     print(dict(message_text=message_text))
 
-    # TODO: 対象メッセージ(予想の書かれたメッセージ)かどうかを判別します。
-
-    # TODO: 対象メッセージでなければ無視。
+    # 対象メッセージ(予想の書かれたメッセージ)かどうかを判別します。
+    # 対象メッセージでなければ無視。
+    if not is_target_messaage_text(message_text):
+        return
 
     # TODO: 対象メッセージであれば、 SpreadSheet への格納を行います。
+    race_date = '2021-04-22'
+    race_name = 'なんちゃら記念レース'
 
-    # TODO: どのレースの予想として格納されたか、発言者へ通知します。
+    # どのレースの予想として格納されたか、発言者へ通知します。
     # NOTE: 「でないとどのレースの予想として扱われたのかわからないよね……」
     #       という意見が出たので、追加された機能です。そりゃそうだ。
-
+    send_message = (
+        f'{user_profile.display_name} さん\n'
+        f'今回のメッセージは {race_date} {race_name} の予想として受理されました!'
+    )
     line_bot_api.reply_message(
         reply_token,
-        TextSendMessage(text=f'Send from line_bot_api.reply_message, you sent...: {message_text}')
+        TextSendMessage(text=send_message),
     )
+
+
+def is_target_messaage_text(inspection_target):
+
+    # [int].[int].[int].[int].[int] の形式を、対象メッセージと判断しています。
+    # その形式であれば True を返却します。
+    splitted = inspection_target.split('.')
+    if len(splitted) != 5:
+        return False
+    for s in splitted:
+        if not is_int(s):
+            return False
+    return True
+
+
+def is_int(string):
+    try:
+        float(string)
+    except ValueError:
+        return False
+    else:
+        return float(string).is_integer()
 
 
 if __name__ == '__main__':
