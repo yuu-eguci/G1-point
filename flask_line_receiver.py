@@ -98,10 +98,10 @@ def on_get_message(event):
 
     # 発言者の id。
     user_id = event.source.user_id
+    logger.debug(dict(user_id=user_id))
     # 発言者の情報。
     # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#get_profileself-user_id-timeoutnone
     user_profile = line_bot_api.get_profile(user_id)
-    logger.debug(dict(user_id=user_id))
 
     # 返答するための token。
     # NOTE: line_bot_api.reply_message(reply_token, TextSendMessage(text='...')) と使用。
