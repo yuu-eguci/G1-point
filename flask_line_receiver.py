@@ -87,13 +87,15 @@ def callback_post():
 def on_get_message(event):
 
     # ここで行うことは……
-    # - Push message を行うための送信先を取得。たぶん group id...??
-    # - 誰の発言? を取得。(名前と user_id) user id は要らないか。
-    # - メッセージの内容を取得。
+    # - G1 グループからのメッセージであることを確認。(event.source.group_id で検証可能。)
+    # - 発言者名を取得。(line_bot_api.get_profile で確認可能。)
+    # - メッセージの内容を取得し、「予想」メッセージであれば Spread Sheet へ格納。
 
-    # Push message を行うための送信先。
+    # Group id を取得。
     group_id = event.source.group_id
     print(dict(group_id=group_id))
+
+    # TODO: G1 グループからのメッセージであることを確認。
 
     # 発言者の id。
     user_id = event.source.user_id
