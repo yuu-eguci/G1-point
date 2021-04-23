@@ -46,7 +46,6 @@ def callback_post():
 
     # get request body as text
     body = request.get_data(as_text=True)
-    logger.debug('Request body: ' + body)
 
     # NOTE: body の内容はこんな感じ。
     #       dict として扱い、値を取り出すこともできます。
@@ -70,7 +69,6 @@ def callback_post():
     #     ]
     # }
 
-    # handle webhook body
     try:
         # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#webhookhandler
         #       handler は、別途 @handler.add を定義することで利用する。
