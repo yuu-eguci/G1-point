@@ -162,7 +162,7 @@ def on_get_message(event):
     )
 
 
-def is_target_messaage_text(inspection_target):
+def is_target_messaage_text(inspection_target: str) -> bool:
     """処理対象メッセージであれば True を返します。
     [int].[int].[int].[int].[int] の形式を、対象メッセージと判断しています。
     """
@@ -176,7 +176,7 @@ def is_target_messaage_text(inspection_target):
     return True
 
 
-def is_int(string):
+def is_int(string: str) -> bool:
     """int 形式の string であれば True を返します。
     NOTE: これくらいビルトインであってほしいよねえ。
     """
