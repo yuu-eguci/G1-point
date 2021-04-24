@@ -9,7 +9,7 @@ from linebot import (
     LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
-    InvalidSignatureError
+    InvalidSignatureError, LineBotApiError
 )
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
@@ -96,16 +96,34 @@ def on_get_message(event):
 
     # TODO: G1 グループからのメッセージであることを確認。
 
+    # 返答するための token。
+    # NOTE: line_bot_api.reply_message(reply_token, TextSendMessage(text='...')) と使用。
+    reply_token = event.reply_token
+
     # 発言者の id。
     user_id = event.source.user_id
     logger.debug(dict(user_id=user_id))
     # 発言者の情報。
     # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#get_profileself-user_id-timeoutnone
-    user_profile = line_bot_api.get_profile(user_id)
+    try:
+        user_profile = line_bot_api.get_profile(user_id)
+    except LineBotApiError as ex:
+        # NOTE: 発言者が Messaging API channel と友達でない場合は 404 エラーが発生します。
+        #       その場合は友達登録を促します。
+        if ex.status_code == 404:
+            send_message = (
+                'xxx さん\n'
+                'ゴメンなさい! 今回のメッセージは受理されませんでした!\n'
+                '私をご利用になるためには、私を友達登録してください!'
+            )
+            line_bot_api.reply_message(
+                reply_token,
+                TextSendMessage(text=send_message),
+            )
+            return
 
-    # 返答するための token。
-    # NOTE: line_bot_api.reply_message(reply_token, TextSendMessage(text='...')) と使用。
-    reply_token = event.reply_token
+        # そうでないエラーの場合は、フツーに打ち上げます。
+        raise ex
 
     # メッセージの内容。
     message_text = event.message.text
