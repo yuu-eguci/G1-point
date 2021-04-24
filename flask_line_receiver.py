@@ -89,21 +89,41 @@ def on_get_message(event):
     - メッセージの内容を取得し、「予想」メッセージであれば Spread Sheet へ格納。
     """
 
-    # Group id を取得。
+    # event から抜くべき情報を抜きます。まずは Group id です。
     # TODO: のちのち、 G1 グループの group id を取得して環境変数へ記録。
     group_id = event.source.group_id
-    logger.debug(dict(group_id=group_id))
 
-    # TODO: G1 グループからのメッセージであることを確認。
-
-    # 返答するための token。
+    # 返答するための token です。
     # NOTE: line_bot_api.reply_message(reply_token, TextSendMessage(text='...')) と使用。
     reply_token = event.reply_token
 
-    # 発言者の id。
+    # 発言者の id です。
     user_id = event.source.user_id
-    logger.debug(dict(user_id=user_id))
-    # 発言者の情報。
+
+    # メッセージの内容です。
+    # NOTE: スペースが混じっていたり、全角が混じっていたりするのは看過してやります。
+    message_text = mojimoji.zen_to_han(event.message.text).replace(' ', '')
+
+    # メッセージが処理対象でなければ、この先の処理はまったく不要です。
+    # 処理対象メッセージの条件はこちら↓
+    #     - G1 group からの post である。
+    #     - 処理対象メッセージである。
+
+    # TODO: G1 グループからのメッセージであることを確認。
+
+    if not is_target_messaage_text(message_text):
+        logger.debug('This message is not a target.')
+        return
+
+    # ここまで来たら、処理対象です。
+    logger.debug(dict(
+        group_id=group_id,
+        reply_token=reply_token,
+        user_id=user_id,
+        message_text=message_text,
+    ))
+
+    # 発言者の情報を取得します。。
     # NOTE: ドキュメント https://github.com/line/line-bot-sdk-python#get_profileself-user_id-timeoutnone
     try:
         user_profile = line_bot_api.get_profile(user_id)
@@ -125,18 +145,6 @@ def on_get_message(event):
         # そうでないエラーの場合は、フツーに打ち上げます。
         raise ex
 
-    # メッセージの内容。
-    message_text = event.message.text
-    # NOTE: スペースが混じっていたり、全角が混じっていたりするのは看過してやります。
-    message_text = mojimoji.zen_to_han(message_text).replace(' ', '')
-    logger.debug(dict(message_text=message_text))
-
-    # 対象メッセージ(予想の書かれたメッセージ)かどうかを判別します。
-    # 対象メッセージでなければ無視。
-    if not is_target_messaage_text(message_text):
-        logger.debug('This message is not a target.')
-        return
-
     # TODO: 対象メッセージであれば、 SpreadSheet への格納を行います。
     race_date = '2021-04-22'
     race_name = 'なんちゃら記念レース'
@@ -155,9 +163,10 @@ def on_get_message(event):
 
 
 def is_target_messaage_text(inspection_target):
+    """処理対象メッセージであれば True を返します。
+    [int].[int].[int].[int].[int] の形式を、対象メッセージと判断しています。
+    """
 
-    # [int].[int].[int].[int].[int] の形式を、対象メッセージと判断しています。
-    # その形式であれば True を返却します。
     splitted = inspection_target.split('.')
     if len(splitted) != 5:
         return False
@@ -168,6 +177,10 @@ def is_target_messaage_text(inspection_target):
 
 
 def is_int(string):
+    """int 形式の string であれば True を返します。
+    NOTE: これくらいビルトインであってほしいよねえ。
+    """
+
     try:
         float(string)
     except ValueError:
