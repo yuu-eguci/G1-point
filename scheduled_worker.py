@@ -4,9 +4,6 @@
 いろいろな user 作成モジュールをコールする上位スクリプトという位置づけです。
 """
 
-# Built-in modules.
-import datetime
-
 # User modules.
 import utils
 import consts
@@ -26,8 +23,7 @@ def run():
     # NOTE: 本スクリプトは毎日の定期発火を想定しています。
     #       ただし、レース結果の出ていない日にはやることが無いです。
     #       その是非を、 netkeiba_scraper_arguments_retreiver に尋ねています。
-    # TODO: ややこしさ軽減のため、 pytz を導入して日本時間に統一する。
-    today_yyyymmdd = datetime.datetime.strftime('%Y-%m-%d')
+    today_yyyymmdd = utils.get_today_jst('%Y-%m-%d')
     race_information = netkeiba_scrape_arguments_retreiver.retreive(today_yyyymmdd)
 
     # レースが無い日はこれでおしまいです。おつかれさまでした。
