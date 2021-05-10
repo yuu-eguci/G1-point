@@ -1,5 +1,7 @@
 # G1-point
 
+🚚 This repository was exported to [python-mate/G1-point](https://github.com/python-mate/G1-point) and was archived.
+
 🏇 G1-point, joint development Python project! This project has three major sections.
 
 First, input and output, using LineMessagingApi. Second, scraping, using requests and beautifulsoup4. Third, store data into SpreadSheets. Pipenv, Heroku, Flask web app, deployment using GitHub Actions.
